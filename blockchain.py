@@ -56,7 +56,7 @@ class Blockchain:
                 return False
 
             # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash, block['rand']):
+            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
                 return False
 
             last_block = block
@@ -155,7 +155,7 @@ class Blockchain:
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
-    def proof_of_work(self, last_block,rand):
+    def proof_of_work(self, last_block, rand):
         """
         Simple Proof of Work Algorithm:
 
@@ -166,17 +166,17 @@ class Blockchain:
         :return: <int>
         """
 
-        last_proof = last_block['proof']
+        last_proof = str(last_block['proof']) + json.dumps(last_block['transactions']) + str(rand)
         last_hash = self.hash(last_block)
 
         proof = 0
-        while self.valid_proof(last_proof, proof, last_hash, rand) is False:
+        while self.valid_proof(last_proof, proof, last_hash) is False:
             proof += 1
 
         return proof
 
     @staticmethod
-    def valid_proof(last_proof, proof, last_hash, rand):
+    def valid_proof(last_proof, proof, last_hash):
         """
         Validates the Proof
 
@@ -187,7 +187,7 @@ class Blockchain:
 
         """
 
-        guess = f'{rand}{last_proof}{proof}{last_hash}'.encode()
+        guess = f'{last_proof}{proof}{last_hash}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
 
