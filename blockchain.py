@@ -212,7 +212,7 @@ def pseudo_random(seed,N):
             rand.append(c/255)
             break;
         k=k+1;
-    return rand
+    return rand[0]
 
 @app.route('/mine', methods=['GET'])
 def mine():
