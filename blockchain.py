@@ -45,7 +45,6 @@ class Blockchain:
 
         last_block = chain[0]
         current_index = 1
-        print("Checking if chain is valid")
         while current_index < len(chain):
             block = chain[current_index]
             print(f'{last_block}')
@@ -58,7 +57,6 @@ class Blockchain:
 
             # Check that the Proof of Work is correct
             if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash, block['rand']):
-                print("hello")
                 return False
 
             last_block = block
@@ -190,9 +188,7 @@ class Blockchain:
         """
 
         guess = f'{rand}{last_proof}{proof}{last_hash}'.encode()
-        print(guess)
         guess_hash = hashlib.sha256(guess).hexdigest()
-        print(guess_hash)
         return guess_hash[:4] == "0000"
 
 
