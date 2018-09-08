@@ -16,7 +16,7 @@ class Blockchain:
         self.nodes = set()
 
         # Create the genesis block
-        self.new_block(previous_hash='1', proof=100, random=0)
+        self.new_block(previous_hash='1', proof=100, rand=0)
 
     def register_node(self, address):
         """
