@@ -16,7 +16,7 @@ class Blockchain:
         self.nodes = set()
 
         # Create the genesis block
-        self.new_block(previous_hash='1', proof=100)
+        self.new_block(previous_hash='1', proof=100, random=0)
 
     def register_node(self, address):
         """
@@ -45,7 +45,7 @@ class Blockchain:
 
         last_block = chain[0]
         current_index = 1
-
+        print("Checking if chain is valid")
         while current_index < len(chain):
             block = chain[current_index]
             print(f'{last_block}')
@@ -57,7 +57,8 @@ class Blockchain:
                 return False
 
             # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
+            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash, block['rand']):
+                print("hello")
                 return False
 
             last_block = block
@@ -99,7 +100,7 @@ class Blockchain:
 
         return False
 
-    def new_block(self, proof, previous_hash):
+    def new_block(self, proof, previous_hash, rand):
         """
         Create a new Block in the Blockchain
 
@@ -113,6 +114,7 @@ class Blockchain:
             'timestamp': time(),
             'transactions': self.current_transactions,
             'proof': proof,
+            'rand' : rand,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
         }
 
@@ -170,13 +172,13 @@ class Blockchain:
         last_hash = self.hash(last_block)
 
         proof = 0
-        while self.valid_proof(last_proof, proof, last_hash,rand) is False:
+        while self.valid_proof(last_proof, proof, last_hash, rand) is False:
             proof += 1
 
         return proof
 
     @staticmethod
-    def valid_proof(last_proof, proof, last_hash,rand):
+    def valid_proof(last_proof, proof, last_hash, rand):
         """
         Validates the Proof
 
@@ -187,8 +189,10 @@ class Blockchain:
 
         """
 
-        guess = f'{last_proof}{proof}{last_hash}{rand}'.encode()
+        guess = f'{rand}{last_proof}{proof}{last_hash}'.encode()
+        print(guess)
         guess_hash = hashlib.sha256(guess).hexdigest()
+        print(guess_hash)
         return guess_hash[:4] == "0000"
 
 
@@ -220,8 +224,8 @@ def mine():
     last_block = blockchain.last_block
     last_proof = last_block['proof']
     #print(last_proof)
-    rand = pseudo_random(last_block['proof'],1)
-    proof = blockchain.proof_of_work(last_block,rand)
+    rand = pseudo_random(last_block['proof'], 1)
+    proof = blockchain.proof_of_work(last_block, rand)
 
     # We must receive a reward for finding the proof.
     # The sender is "0" to signify that this node has mined a new coin.
@@ -233,13 +237,14 @@ def mine():
 
     # Forge the new Block by adding it to the chain
     previous_hash = blockchain.hash(last_block)
-    block = blockchain.new_block(proof, previous_hash)
+    block = blockchain.new_block(proof, previous_hash, rand)
 
     response = {
         'message': "New Block Forged",
         'index': block['index'],
         'transactions': block['transactions'],
         'proof': block['proof'],
+        'rand' : block['rand'],
         'previous_hash': block['previous_hash'],
     }
     return jsonify(response), 200
@@ -309,7 +314,7 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
-    parser.add_argument('-p', '--port', default=5001, type=int, help='port to listen on')
+    parser.add_argument('-p', '--port', default=5000, type=int, help='port to listen on')
     args = parser.parse_args()
     port = args.port
 
