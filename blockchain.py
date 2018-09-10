@@ -165,12 +165,12 @@ class Blockchain:
         :return: <int>
         """
 
-        last_proof = str(last_block['proof']) + json.dumps(last_block['transactions'])
+        last_proof = last_block['proof']
         last_hash = self.hash(last_block)
 
-        proof = self.pseudo_random(last_block['proof'], 1)
+        proof = self.pseudo_random(last_proof, 1)
         while self.valid_proof(last_proof, proof, last_hash) is False:
-            proof = self.pseudo_random(last_block['proof'], 1)
+            proof = self.pseudo_random(last_proof, 1)
 
         return proof
 
