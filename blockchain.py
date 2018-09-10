@@ -186,6 +186,10 @@ class Blockchain:
 
         """
 
+        # invalidates proof that are not between 0 and 1
+        if (proof < 0) or (proof > 1):
+            return False
+
         guess = f'{last_proof}{proof}{last_hash}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:2] == "00"
